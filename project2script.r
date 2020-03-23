@@ -25,7 +25,6 @@ adultsCopy
 #or never married, relationship also mentions if never-married or divorce people have kids)
 #Remove country of origin because that often translates into race and race is a greater indictor of income than native country
 #Remove workClass because that doesn't really indicate a person's income for the first 20 data set I looked at
-
 str(adultsCopy)
 
 # translating alphanumeric val to num val
@@ -39,8 +38,21 @@ adultsCopy$`hours-per-week`<-as.numeric(adultsCopy$`hours-per-week`)
 
 str(adultsCopy)
 
+replace(adultsCopy,adultsCopy == " ?",NA)
+#I tried to replace data values with ? to NA so we can remove them later for the analysis but it doesn't work
+
+levels(adultsCopy$occupation)
+levels(adultsCopy$relationship)
+levels(adultsCopy$race)
+levels(adultsCopy$sex)
 #Create a mapping for each field of values to integers. Make sure you put these mappings into your report.
-#Look into factors and levels and all of that
+#Levels explains the mapping 
+
+adultsCopy$occupation<-as.numeric(adultsCopy$occupation)
+adultsCopy$relationship<-as.numeric(adultsCopy$relationship)
+adultsCopy$race<-as.numeric(adultsCopy$race)
+adultsCopy$sex<-as.numeric(adultsCopy$sex)
+#now that we have the mapping assign numeric values to each one
 
 
 #Question 3
@@ -48,6 +60,9 @@ str(adultsCopy)
 adultsCopy <- adultsCopy[-c(11)]
 str(adultsCopy)
 
+
+adultsCopy<-na.omit(adultsCopy)
+#omit the NA
 
 
 
