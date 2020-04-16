@@ -8,6 +8,7 @@ install.packages("dplyr")
 library(class)
 library(psych)
 library(dplyr)
+library(rgl)
 
 #Question 1
 #Load the data
