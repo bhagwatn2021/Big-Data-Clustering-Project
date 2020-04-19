@@ -1,13 +1,16 @@
-#Objective: Prediction task is to determine whether a person makes over 50K a year.  
-
 install.packages("gmodels")
 install.packages("factoextra")
 install.packages("class")
 install.packages("psych")
 install.packages("dplyr")
+install.packages("rgl")
+install.packages("cluster")
 library(class)
 library(psych)
 library(dplyr)
+library(scatterplot3d)
+library(rgl)
+library(cluster)
 
 #Question 1
 #Load the data
@@ -26,7 +29,8 @@ adults
 
 #make a copy of adults for plotting purposes
 plotAdults <- adults
-#plotAdults <-plotAdults[1:1000,1:15]
+
+#investigate statistics of the data
 
 #Translating alphanumeric values to numeric values for age, fnlwgt, education-num, 
 #capital-gain, capital loss, hours-per-week to ensure that we are working with 
@@ -37,9 +41,10 @@ plotAdults$`education-num`<-as.numeric(plotAdults$`education-num`)
 plotAdults$`capital-gain`<-as.numeric(plotAdults$`capital-gain`)
 plotAdults$`capital-loss`<-as.numeric(plotAdults$`capital-loss`)
 plotAdults$`hours-per-week`<-as.numeric(plotAdults$`hours-per-week`)
-
+str(adults)
 #We still need to be able to plot workclass, education, martial status, occupation, relationship, 
 #race, sex, income since they are characters.
+
 
 #make workclass numeric: 
 
@@ -83,7 +88,6 @@ plotAdults$workclass <- as.numeric(as.character(plotAdults$workclass))
 #check whether all values were converted
 unique(plotAdults$workclass)
 str(plotAdults)
-
 
 #since education-num correlates to education, we can omit the education column for plotting purposes.
 
@@ -280,8 +284,6 @@ plotAdults$relationship <- as.numeric(as.character(plotAdults$relationship))
 unique(plotAdults$relationship)
 str(plotAdults)
 
-
-
 #make race numeric: 
 
 #check the unique values of race to replace with integers
@@ -348,7 +350,6 @@ plotAdults$sex <- as.numeric(as.character(plotAdults$sex))
 #check whether all values were converted
 unique(plotAdults$sex)
 str(plotAdults)
-
 
 #make native-country numeric: 
 
@@ -479,6 +480,8 @@ for(row in 1:nrow(plotAdults)){
 plotAdults$`native-country` <- as.numeric(as.character(plotAdults$`native-country`))
 #check whether all values were converted
 unique(plotAdults$`native-country`)
+plotAdults<- na.omit(plotAdults)
+
 str(plotAdults)
 
 
@@ -487,17 +490,17 @@ str(plotAdults)
 #check the unique values of numeric to replace with integers
 unique(plotAdults$income)
 
-#25000 for <=50K
-#75000 for >50K
+#1 for <=50K
+#2 for >50K
 #NA for unknown values 
 
 #loop through each value and assign the appropriate integer
 for(row in 1:nrow(plotAdults)){
   if(plotAdults[row,"income"]==" <=50K"){ 
-    plotAdults[row,"income"] <- 25000
+    plotAdults[row,"income"] <- 1
   } 
   else if(plotAdults[row,"income"]==" >50K"){ 
-    plotAdults[row,"income"] <- 75000
+    plotAdults[row,"income"] <- 2
   } 
   else if(plotAdults[row,"income"]==" ?"){ 
     plotAdults[row,"income"] <- na_if(plotAdults[row,"income"], " ?")
@@ -509,183 +512,167 @@ plotAdults$income <- as.numeric(as.character(plotAdults$income))
 unique(plotAdults$income)
 str(plotAdults)
 
-#omit any NA values
+#omit any NA values and take a subset of 1000 records of the data
 plotAdults<- na.omit(plotAdults)
-
+plotAdults <- plotAdults[1:1000,]
 #plot data
 plot(plotAdults)
 
-
-#Question 2
-levels(adultsCopy$occupation)
-levels(adultsCopy$relationship)
-levels(adultsCopy$race)
-levels(adultsCopy$sex)
-#Create a mapping for each field of values to integers. Make sure you put these mappings into your report.
-#Levels explains the mapping 
-
-adultsCopy$occupation<-as.numeric(adultsCopy$occupation)
-adultsCopy$relationship<-as.numeric(adultsCopy$relationship)
-adultsCopy$race<-as.numeric(adultsCopy$race)
-adultsCopy$sex<-as.numeric(adultsCopy$sex)
-#now that we have the mapping assign numeric values to each one
+#3d plots with diff varibales 
+attach(plotAdults)
+scatterplot3d(plotAdults$age,plotAdults$income,plotAdults$`education-num`, main="3D Scatterplot 1")
+scatterplot3d(plotAdults$income,plotAdults$occupation,plotAdults$relationship, main="3D Scatterplot 2")
+scatterplot3d(plotAdults$age,plotAdults$income,plotAdults$occupation, main="3D Scatterplot 3")
 
 
 #Question 3
 #Eliminate <=50K and >50K column from the data set.
-adultsCopy <- adultsCopy[-c(11)]
-str(adultsCopy)
+plotAdults <- plotAdults[-c(14)]
+str(plotAdults)
 
-adultsCopy<-na.omit(adultsCopy)
-#omit the NA except does nothing cause can't change ? --> NA
-
-describe(adultsCopy)
-#plot(adultsCopy)
-adultsTest<- adultsCopy[1:398,]
-adultsTest
-str(adultsTest)
-#plot(adultsTest)
-#Suppose to keep the linear or near linear relationships but I can't tell with the plot
-#delete attributes that are not linear 
 
 #normalization Process
-normalize<- function(x) {((x-min(x))/(max(x)-min(x)))}
+normalize <- function(x) {(((x-min(x))/max(x)-min(x)))}
 normalize
-normalize(c(1,2,3,4,5,6,7,8,9, 10))
-adultsCopy.norm<- as.data.frame(lapply(adultsCopy[,1:10],normalize))
-adultsCopy.norm[1:10,]
+normalize(c(1,2,3,4,5,6,7,8,9,10))
+plotAdults.norm<- as.data.frame(lapply(plotAdults[,1:10],normalize))
+plotAdults.norm[1:10,]
 
 #Kmeans 2 to 10
 #It doens't look like the profs example at all
-adultsCopy.k2<-kmeans(adultsCopy.norm, centers = 2, nstart = 25)
-adultsCopy.k2
-factoextra::fviz_cluster(adultsCopy.k2, adultsCopy)
+plotAdults.k2<-kmeans(plotAdults.norm, centers = 2, nstart = 25)
+plotAdults.k2
+factoextra::fviz_cluster(plotAdults.k2, plotAdults)
 
-adultsCopy.k3<-kmeans(adultsCopy.norm, centers = 3, nstart = 25)
-adultsCopy.k3
-factoextra::fviz_cluster(adultsCopy.k3, adultsCopy)
+plotAdults.k3<-kmeans(plotAdults.norm, centers = 3, nstart = 25)
+plotAdults.k3
+factoextra::fviz_cluster(plotAdults.k3, plotAdults)
 
-adultsCopy.k4<-kmeans(adultsCopy.norm, centers = 4, nstart = 25)
-adultsCopy.k4
-factoextra::fviz_cluster(adultsCopy.k4, adultsCopy)
+plotAdults.k4<-kmeans(plotAdults.norm, centers = 4, nstart = 25)
+str(plotAdults.k4)
+factoextra::fviz_cluster(plotAdults.k4, plotAdults)
 
-adultsCopy.k5<-kmeans(adultsCopy.norm, centers = 5, nstart = 25)
-adultsCopy.k5
-factoextra::fviz_cluster(adultsCopy.k5, adultsCopy)
+plotAdults.k5<-kmeans(plotAdults.norm, centers = 5, nstart = 25)
+plotAdults.k5
+factoextra::fviz_cluster(plotAdults.k5, plotAdults)
 
-adultsCopy.k6<-kmeans(adultsCopy.norm, centers = 6, nstart = 25)
-adultsCopy.k6
-factoextra::fviz_cluster(adultsCopy.k6, adultsCopy)
+plotAdults.k6<-kmeans(plotAdults.norm, centers = 6, nstart = 25)
+plotAdults.k6
+factoextra::fviz_cluster(plotAdults.k6, plotAdults)
 
-adultsCopy.k7<-kmeans(adultsCopy.norm, centers = 7, nstart = 25)
-adultsCopy.k7
-factoextra::fviz_cluster(adultsCopy.k7, adultsCopy)
+plotAdults.k7<-kmeans(plotAdults.norm, centers = 7, nstart = 25)
+plotAdults.k7
+factoextra::fviz_cluster(plotAdults.k7, plotAdults)
 
-adultsCopy.k8<-kmeans(adultsCopy.norm, centers = 8, nstart = 25)
-adultsCopy.k8
-factoextra::fviz_cluster(adultsCopy.k8, adultsCopy)
+plotAdults.k8<-kmeans(plotAdults.norm, centers = 8, nstart = 25)
+plotAdults.k8
+factoextra::fviz_cluster(plotAdults.k8, plotAdults)
 
-adultsCopy.k9<-kmeans(adultsCopy.norm, centers = 9, nstart = 25)
-adultsCopy.k9
-factoextra::fviz_cluster(adultsCopy.k9, adultsCopy)
+plotAdults.k9<-kmeans(plotAdults.norm, centers = 9, nstart = 25)
+plotAdults.k9
+factoextra::fviz_cluster(plotAdults.k9, plotAdults)
 
-adultsCopy.k10<-kmeans(adultsCopy.norm, centers = 10, nstart = 25)
-adultsCopy.k10
-factoextra::fviz_cluster(adultsCopy.k10, adultsCopy)
+plotAdults.k10<-kmeans(plotAdults.norm, centers = 10, nstart = 25)
+plotAdults.k10
+factoextra::fviz_cluster(plotAdults.k10, plotAdults)
+
 
 #shows the optimal number of clusters
-#takes too long on my computer so I couldn't see the results
-# Also we don;t have to do this 
-factoextra::fviz_nbclust(adultsCopy, FUNcluster=kmeans,print.summary=TRUE)
+factoextra::fviz_nbclust(plotAdults, FUNcluster=kmeans,print.summary=TRUE)
 
 #Prep for knn
-adultsCopy.norm.nrows<-nrow(adultsCopy.norm)
-adultsCopy.norm.sample<-0.7
-adultsCopy.norm.train.index<-sample(adultsCopy.norm.nrows, adultsCopy.norm.sample*adultsCopy.norm.nrows)
-length(adultsCopy.norm.train.index)
-adultsCopy.norm.train<-adultsCopy.norm[adultsCopy.norm.train.index,]
-adultsCopy.norm.train[1:20,]
-adultsCopy.norm.test<-adultsCopy.norm[-adultsCopy.norm.train.index,]
-adultsCopy.norm.test[1:20,]
+plotAdults.norm.nrows<-nrow(plotAdults.norm)
+plotAdults.norm.sample<-0.7
+plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
+length(plotAdults.norm.train.index)
+plotAdults.norm.train<-plotAdults.norm[plotAdults.norm.train.index,]
+plotAdults.norm.train[1:20,]
+plotAdults.norm.test<-plotAdults.norm[-plotAdults.norm.train.index,]
+plotAdults.norm.test[1:20,]
 
 #knn=2
-adultsCopy.norm.train.k2<-kmeans(adultsCopy.norm.train, centers=2)
-adultsCopy.norm.train.k2
-adultsCopy.norm.test.k2<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k2$cluster, k=2)
-adultsCopy.norm.test.k2
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k2$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k2<-kmeans(plotAdults.norm.train, centers=2)
+plotAdults.norm.train.k2
+plotAdults.norm.test.k2<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k2$cluster, k=2)
+plotAdults.norm.test.k2
+plotAdults.norm.train.labels<-plotAdults.norm.train.k2$cluster
+plotAdults.norm.train.labels
 
 #knn=3
-adultsCopy.norm.train.k3<-kmeans(adultsCopy.norm.train, centers=3)
-adultsCopy.norm.train.k3
-adultsCopy.norm.test.k3<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k3$cluster, k=3)
-adultsCopy.norm.test.k3
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k3$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k3<-kmeans(plotAdults.norm.train, centers=3)
+plotAdults.norm.train.k3
+plotAdults.norm.test.k3<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k3$cluster, k=3)
+plotAdults.norm.test.k3
+plotAdults.norm.train.labels<-plotAdults.norm.train.k3$cluster
+plotAdults.norm.train.labels
 
 #knn=4
-adultsCopy.norm.train.k4<-kmeans(adultsCopy.norm.train, centers=4)
-adultsCopy.norm.train.k4
-adultsCopy.norm.test.k4<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k4$cluster, k=4)
-adultsCopy.norm.test.k4
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k4$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k4<-kmeans(plotAdults.norm.train, centers=4)
+plotAdults.norm.train.k4
+plotAdults.norm.test.k4<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k4$cluster, k=4)
+plotAdults.norm.test.k4
+plotAdults.norm.train.labels<-plotAdults.norm.train.k4$cluster
+plotAdults.norm.train.labels
 
 #knn=5
-adultsCopy.norm.train.k5<-kmeans(adultsCopy.norm.train, centers=5)
-adultsCopy.norm.train.k5
-adultsCopy.norm.test.k5<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k5$cluster, k=5)
-adultsCopy.norm.test.k5
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k5$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k5<-kmeans(plotAdults.norm.train, centers=5)
+plotAdults.norm.train.k5
+plotAdults.norm.test.k5<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k5$cluster, k=5)
+plotAdults.norm.test.k5
+plotAdults.norm.train.labels<-plotAdults.norm.train.k5$cluster
+plotAdults.norm.train.labels
 
 #knn=6
-adultsCopy.norm.train.k6<-kmeans(adultsCopy.norm.train, centers=6)
-adultsCopy.norm.train.k6
-adultsCopy.norm.test.k6<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k6$cluster, k=6)
-adultsCopy.norm.test.k6
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k6$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k6<-kmeans(plotAdults.norm.train, centers=6)
+plotAdults.norm.train.k6
+plotAdults.norm.test.k6<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k6$cluster, k=6)
+plotAdults.norm.test.k6
+plotAdults.norm.train.labels<-plotAdults.norm.train.k6$cluster
+plotAdults.norm.train.labels
 
 #knn=7
-adultsCopy.norm.train.k7<-kmeans(adultsCopy.norm.train, centers=7)
-adultsCopy.norm.train.k7
-adultsCopy.norm.test.k7<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k7$cluster, k=7)
-adultsCopy.norm.test.k7
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k7$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k7<-kmeans(plotAdults.norm.train, centers=7)
+plotAdults.norm.train.k7
+plotAdults.norm.test.k7<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k7$cluster, k=7)
+plotAdults.norm.test.k7
+plotAdults.norm.train.labels<-plotAdults.norm.train.k7$cluster
+plotAdults.norm.train.labels
 
 #knn=8
-adultsCopy.norm.train.k8<-kmeans(adultsCopy.norm.train, centers=8)
-adultsCopy.norm.train.k8
-adultsCopy.norm.test.k8<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k8$cluster, k=8)
-adultsCopy.norm.test.k8
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k8$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k8<-kmeans(plotAdults.norm.train, centers=8)
+plotAdults.norm.train.k8
+plotAdults.norm.test.k8<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k8$cluster, k=8)
+plotAdults.norm.test.k8
+plotAdults.norm.train.labels<-plotAdults.norm.train.k8$cluster
+plotAdults.norm.train.labels
 
 #knn=9
-adultsCopy.norm.train.k9<-kmeans(adultsCopy.norm.train, centers=9)
-adultsCopy.norm.train.k9
-adultsCopy.norm.test.k9<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k9$cluster, k=9)
-adultsCopy.norm.test.k9
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k9$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k9<-kmeans(plotAdults.norm.train, centers=9)
+plotAdults.norm.train.k9
+plotAdults.norm.test.k9<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k9$cluster, k=9)
+plotAdults.norm.test.k9
+plotAdults.norm.train.labels<-plotAdults.norm.train.k9$cluster
+plotAdults.norm.train.labels
 
 #knn=10
-adultsCopy.norm.train.k10<-kmeans(adultsCopy.norm.train, centers=10)
-adultsCopy.norm.train.k10
-adultsCopy.norm.test.k10<-knn(adultsCopy.norm.train, adultsCopy.norm.test, adultsCopy.norm.train.k10$cluster, k=10)
-adultsCopy.norm.test.k10
-adultsCopy.norm.train.labels<-adultsCopy.norm.train.k10$cluster
-adultsCopy.norm.train.labels
+plotAdults.norm.train.k10<-kmeans(plotAdults.norm.train, centers=10)
+plotAdults.norm.train.k10
+plotAdults.norm.test.k10<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k10$cluster, k=10)
+plotAdults.norm.test.k10
+plotAdults.norm.train.labels<-plotAdults.norm.train.k10$cluster
+plotAdults.norm.train.labels
 
-#iclust: IDK how to do this and there wasn't any notes on this
-ic.out<-ICLUST(adultsCopy)
-out.file <- file.choose(new=TRUE) 
-ic.out <- ICLUST(adultsCopy,nclusters =10)  #use all defaults and if possible stop at 10 clusters
-ICLUST.graph(ic.out,out.file,title = "IClUST of the data with 10 variable")
-
-
-#Question 4
+#iclust:
+iclust(plotAdults, nclusters = 2)
+iclust(plotAdults, nclusters = 3)
+iclust(plotAdults, nclusters = 4) 
+#Got a warning when nclusters=4
+iclust(plotAdults, nclusters = 5)
+iclust(plotAdults, nclusters = 6)
+#nclust=6 more warnings
+#THere are more issues below
+iclust(plotAdults, nclusters = 7)
+iclust(plotAdults, nclusters = 8)
+iclust(plotAdults, nclusters = 9)
+iclust(plotAdults, nclusters = 10)
 
