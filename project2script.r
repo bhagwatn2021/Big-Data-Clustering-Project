@@ -527,14 +527,24 @@ scatterplot3d(plotAdults$age,plotAdults$income,plotAdults$occupation, main="3D S
 
 #Question 3
 #Eliminate <=50K and >50K column from the data set.
+
 plotAdults <- plotAdults[-c(14)]
 str(plotAdults)
 
+describe(plotAdults)
+#plot(plotAdults)
+adultsTest<- plotAdults[1:398,]
+adultsTest
+str(adultsTest)
+#plot(adultsTest)
+#Suppose to keep the linear or near linear relationships but I can't tell with the plot
+#delete attributes that are not linear 
 
 #normalization Process
-normalize <- function(x) {(((x-min(x))/max(x)-min(x)))}
+normalize<- function(x) {((x-min(x))/(max(x)-min(x)))}
 normalize
-normalize(c(1,2,3,4,5,6,7,8,9,10))
+normalize(c(1,2,3,4,5,6,7,8,9, 10))
+
 plotAdults.norm<- as.data.frame(lapply(plotAdults[,1:10],normalize))
 plotAdults.norm[1:10,]
 
@@ -575,7 +585,6 @@ factoextra::fviz_cluster(plotAdults.k9, plotAdults)
 plotAdults.k10<-kmeans(plotAdults.norm, centers = 10, nstart = 25)
 plotAdults.k10
 factoextra::fviz_cluster(plotAdults.k10, plotAdults)
-
 
 #shows the optimal number of clusters
 factoextra::fviz_nbclust(plotAdults, FUNcluster=kmeans,print.summary=TRUE)
