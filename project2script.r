@@ -480,8 +480,6 @@ for(row in 1:nrow(plotAdults)){
 plotAdults$`native-country` <- as.numeric(as.character(plotAdults$`native-country`))
 #check whether all values were converted
 unique(plotAdults$`native-country`)
-plotAdults<- na.omit(plotAdults)
-
 str(plotAdults)
 
 
