@@ -11,7 +11,7 @@ library(dplyr)
 library(scatterplot3d)
 library(rgl)
 library(cluster)
-
+library(class)
 #Question 1
 #Load the data
 adults= read.csv("data/adult.data", header=FALSE,stringsAsFactors = FALSE)
@@ -512,7 +512,7 @@ str(plotAdults)
 
 #omit any NA values and take a subset of 1000 records of the data
 plotAdults<- na.omit(plotAdults)
-plotAdults <- plotAdults[1:1000,]
+plotAdults <- plotAdults[1:1000,]git
 #plot data
 plot(plotAdults)
 
@@ -543,8 +543,8 @@ normalize<- function(x) {((x-min(x))/(max(x)-min(x)))}
 normalize
 normalize(c(1,2,3,4,5,6,7,8,9, 10))
 
-plotAdults.norm<- as.data.frame(lapply(plotAdults[,1:10],normalize))
-plotAdults.norm[1:10,]
+plotAdults.norm<- as.data.frame(lapply(plotAdults,normalize))
+plotAdults.norm
 
 #Kmeans 2 to 10
 #It doens't look like the profs example at all
@@ -587,9 +587,90 @@ factoextra::fviz_cluster(plotAdults.k10, plotAdults)
 #shows the optimal number of clusters
 factoextra::fviz_nbclust(plotAdults, FUNcluster=kmeans,print.summary=TRUE)
 
-#Prep for knn
+#Prep for knn, 70-30 training ratio
 plotAdults.norm.nrows<-nrow(plotAdults.norm)
 plotAdults.norm.sample<-0.7
+plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
+length(plotAdults.norm.train.index)
+plotAdults.norm.train<-plotAdults.norm[plotAdults.norm.train.index,]
+plotAdults.norm.train[1:20,]
+plotAdults.norm.test<-plotAdults.norm[-plotAdults.norm.train.index,]
+
+#knn=2
+plotAdults.norm.train.k2<-kmeans(plotAdults.norm.train, centers=2)
+plotAdults.norm.train.k2$cluster
+plotAdults.norm.test.k2<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k2$cluster, k=2)
+plotAdults.norm.test.k2
+plotAdults.norm.test.k2<-kmeans(plotAdults.norm.test, centers = 2)
+plotAdults.norm.test.k2$cluster
+
+#knn=3
+plotAdults.norm.train.k3<-kmeans(plotAdults.norm.train, centers=3)
+plotAdults.norm.train.k3
+plotAdults.norm.test.k3<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k3$cluster, k=3)
+plotAdults.norm.test.k3
+plotAdults.norm.test.k3<-kmeans(plotAdults.norm.test, centers = 3)
+plotAdults.norm.test.k3$cluster
+
+#knn=4
+plotAdults.norm.train.k4<-kmeans(plotAdults.norm.train, centers=4)
+plotAdults.norm.train.k4
+plotAdults.norm.test.k4<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k4$cluster, k=4)
+plotAdults.norm.test.k4
+plotAdults.norm.test.k4<-kmeans(plotAdults.norm.test, centers = 4)
+plotAdults.norm.test.k4$cluster
+
+#knn=5
+plotAdults.norm.train.k5<-kmeans(plotAdults.norm.train, centers=5)
+plotAdults.norm.train.k5
+plotAdults.norm.test.k5<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k5$cluster, k=5)
+plotAdults.norm.test.k5
+plotAdults.norm.test.k5<-kmeans(plotAdults.norm.test, centers = 5)
+plotAdults.norm.test.k5$cluster
+
+#knn=6
+plotAdults.norm.train.k6<-kmeans(plotAdults.norm.train, centers=6)
+plotAdults.norm.train.k6
+plotAdults.norm.test.k6<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k6$cluster, k=6)
+plotAdults.norm.test.k6
+plotAdults.norm.test.k6<-kmeans(plotAdults.norm.test, centers = 6)
+plotAdults.norm.test.k6$cluster
+
+#knn=7
+plotAdults.norm.train.k7<-kmeans(plotAdults.norm.train, centers=7)
+plotAdults.norm.train.k7
+plotAdults.norm.test.k7<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k7$cluster, k=7)
+plotAdults.norm.test.k7
+plotAdults.norm.test.k7<-kmeans(plotAdults.norm.test, centers = 7)
+plotAdults.norm.test.k7$cluster
+
+#knn=8
+plotAdults.norm.train.k8<-kmeans(plotAdults.norm.train, centers=8)
+plotAdults.norm.train.k8
+plotAdults.norm.test.k8<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k8$cluster, k=8)
+plotAdults.norm.test.k8
+plotAdults.norm.test.k8<-kmeans(plotAdults.norm.test, centers = 8)
+plotAdults.norm.test.k8$cluster
+
+#knn=9
+plotAdults.norm.train.k9<-kmeans(plotAdults.norm.train, centers=9)
+plotAdults.norm.train.k9
+plotAdults.norm.test.k9<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k9$cluster, k=9)
+plotAdults.norm.test.k9
+plotAdults.norm.test.k9<-kmeans(plotAdults.norm.test, centers = 9)
+plotAdults.norm.test.k9$cluster
+
+#knn=10
+plotAdults.norm.train.k10<-kmeans(plotAdults.norm.train, centers=10)
+plotAdults.norm.train.k10
+plotAdults.norm.test.k10<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k10$cluster, k=10)
+plotAdults.norm.test.k10
+plotAdults.norm.test.k10<-kmeans(plotAdults.norm.test, centers = 10)
+plotAdults.norm.test.k10$cluster
+
+#Prep for knn, 60-40 training ratio
+plotAdults.norm.nrows<-nrow(plotAdults.norm)
+plotAdults.norm.sample<-0.6
 plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
 length(plotAdults.norm.train.index)
 plotAdults.norm.train<-plotAdults.norm[plotAdults.norm.train.index,]
@@ -599,75 +680,157 @@ plotAdults.norm.test[1:20,]
 
 #knn=2
 plotAdults.norm.train.k2<-kmeans(plotAdults.norm.train, centers=2)
-plotAdults.norm.train.k2
+plotAdults.norm.train.k2$cluster
 plotAdults.norm.test.k2<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k2$cluster, k=2)
 plotAdults.norm.test.k2
-plotAdults.norm.train.labels<-plotAdults.norm.train.k2$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k2<-kmeans(plotAdults.norm.test, centers = 2)
+plotAdults.norm.test.k2$cluster
 
 #knn=3
 plotAdults.norm.train.k3<-kmeans(plotAdults.norm.train, centers=3)
 plotAdults.norm.train.k3
 plotAdults.norm.test.k3<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k3$cluster, k=3)
 plotAdults.norm.test.k3
-plotAdults.norm.train.labels<-plotAdults.norm.train.k3$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k3<-kmeans(plotAdults.norm.test, centers = 3)
+plotAdults.norm.test.k3$cluster
 
 #knn=4
 plotAdults.norm.train.k4<-kmeans(plotAdults.norm.train, centers=4)
 plotAdults.norm.train.k4
 plotAdults.norm.test.k4<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k4$cluster, k=4)
 plotAdults.norm.test.k4
-plotAdults.norm.train.labels<-plotAdults.norm.train.k4$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k4<-kmeans(plotAdults.norm.test, centers = 4)
+plotAdults.norm.test.k4$cluster
 
 #knn=5
 plotAdults.norm.train.k5<-kmeans(plotAdults.norm.train, centers=5)
 plotAdults.norm.train.k5
 plotAdults.norm.test.k5<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k5$cluster, k=5)
 plotAdults.norm.test.k5
-plotAdults.norm.train.labels<-plotAdults.norm.train.k5$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k5<-kmeans(plotAdults.norm.test, centers = 5)
+plotAdults.norm.test.k5$cluster
 
 #knn=6
 plotAdults.norm.train.k6<-kmeans(plotAdults.norm.train, centers=6)
 plotAdults.norm.train.k6
 plotAdults.norm.test.k6<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k6$cluster, k=6)
 plotAdults.norm.test.k6
-plotAdults.norm.train.labels<-plotAdults.norm.train.k6$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k6<-kmeans(plotAdults.norm.test, centers = 6)
+plotAdults.norm.test.k6$cluster
 
 #knn=7
 plotAdults.norm.train.k7<-kmeans(plotAdults.norm.train, centers=7)
 plotAdults.norm.train.k7
 plotAdults.norm.test.k7<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k7$cluster, k=7)
 plotAdults.norm.test.k7
-plotAdults.norm.train.labels<-plotAdults.norm.train.k7$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k7<-kmeans(plotAdults.norm.test, centers = 7)
+plotAdults.norm.test.k7$cluster
 
 #knn=8
 plotAdults.norm.train.k8<-kmeans(plotAdults.norm.train, centers=8)
 plotAdults.norm.train.k8
 plotAdults.norm.test.k8<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k8$cluster, k=8)
 plotAdults.norm.test.k8
-plotAdults.norm.train.labels<-plotAdults.norm.train.k8$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k8<-kmeans(plotAdults.norm.test, centers = 8)
+plotAdults.norm.test.k8$cluster
 
 #knn=9
 plotAdults.norm.train.k9<-kmeans(plotAdults.norm.train, centers=9)
 plotAdults.norm.train.k9
 plotAdults.norm.test.k9<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k9$cluster, k=9)
 plotAdults.norm.test.k9
-plotAdults.norm.train.labels<-plotAdults.norm.train.k9$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k9<-kmeans(plotAdults.norm.test, centers = 9)
+plotAdults.norm.test.k9$cluster
 
 #knn=10
 plotAdults.norm.train.k10<-kmeans(plotAdults.norm.train, centers=10)
 plotAdults.norm.train.k10
 plotAdults.norm.test.k10<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k10$cluster, k=10)
 plotAdults.norm.test.k10
-plotAdults.norm.train.labels<-plotAdults.norm.train.k10$cluster
-plotAdults.norm.train.labels
+plotAdults.norm.test.k10<-kmeans(plotAdults.norm.test, centers = 10)
+plotAdults.norm.test.k10$cluster
+
+#Prep for knn, 50-50 training ratio
+plotAdults.norm.nrows<-nrow(plotAdults.norm)
+plotAdults.norm.sample<-0.5
+plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
+length(plotAdults.norm.train.index)
+plotAdults.norm.train<-plotAdults.norm[plotAdults.norm.train.index,]
+plotAdults.norm.train[1:20,]
+plotAdults.norm.test<-plotAdults.norm[-plotAdults.norm.train.index,]
+plotAdults.norm.test[1:20,]
+
+#knn=2
+plotAdults.norm.train.k2<-kmeans(plotAdults.norm.train, centers=2)
+plotAdults.norm.train.k2$cluster
+plotAdults.norm.test.k2<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k2$cluster, k=2)
+plotAdults.norm.test.k2
+plotAdults.norm.test.k2<-kmeans(plotAdults.norm.test, centers = 2)
+plotAdults.norm.test.k2$cluster
+
+#knn=3
+plotAdults.norm.train.k3<-kmeans(plotAdults.norm.train, centers=3)
+plotAdults.norm.train.k3
+plotAdults.norm.test.k3<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k3$cluster, k=3)
+plotAdults.norm.test.k3
+plotAdults.norm.test.k3<-kmeans(plotAdults.norm.test, centers = 3)
+plotAdults.norm.test.k3$cluster
+
+#knn=4
+plotAdults.norm.train.k4<-kmeans(plotAdults.norm.train, centers=4)
+plotAdults.norm.train.k4
+plotAdults.norm.test.k4<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k4$cluster, k=4)
+plotAdults.norm.test.k4
+plotAdults.norm.test.k4<-kmeans(plotAdults.norm.test, centers = 4)
+plotAdults.norm.test.k4$cluster
+
+#knn=5
+plotAdults.norm.train.k5<-kmeans(plotAdults.norm.train, centers=5)
+plotAdults.norm.train.k5
+plotAdults.norm.test.k5<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k5$cluster, k=5)
+plotAdults.norm.test.k5
+plotAdults.norm.test.k5<-kmeans(plotAdults.norm.test, centers = 5)
+plotAdults.norm.test.k5$cluster
+
+#knn=6
+plotAdults.norm.train.k6<-kmeans(plotAdults.norm.train, centers=6)
+plotAdults.norm.train.k6
+plotAdults.norm.test.k6<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k6$cluster, k=6)
+plotAdults.norm.test.k6
+plotAdults.norm.test.k6<-kmeans(plotAdults.norm.test, centers = 6)
+plotAdults.norm.test.k6$cluster
+
+#knn=7
+plotAdults.norm.train.k7<-kmeans(plotAdults.norm.train, centers=7)
+plotAdults.norm.train.k7
+plotAdults.norm.test.k7<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k7$cluster, k=7)
+plotAdults.norm.test.k7
+plotAdults.norm.test.k7<-kmeans(plotAdults.norm.test, centers = 7)
+plotAdults.norm.test.k7$cluster
+
+#knn=8
+plotAdults.norm.train.k8<-kmeans(plotAdults.norm.train, centers=8)
+plotAdults.norm.train.k8
+plotAdults.norm.test.k8<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k8$cluster, k=8)
+plotAdults.norm.test.k8
+plotAdults.norm.test.k8<-kmeans(plotAdults.norm.test, centers = 8)
+plotAdults.norm.test.k8$cluster
+
+#knn=9
+plotAdults.norm.train.k9<-kmeans(plotAdults.norm.train, centers=9)
+plotAdults.norm.train.k9
+plotAdults.norm.test.k9<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k9$cluster, k=9)
+plotAdults.norm.test.k9
+plotAdults.norm.test.k9<-kmeans(plotAdults.norm.test, centers = 9)
+plotAdults.norm.test.k9$cluster
+
+#knn=10
+plotAdults.norm.train.k10<-kmeans(plotAdults.norm.train, centers=10)
+plotAdults.norm.train.k10
+plotAdults.norm.test.k10<-knn(plotAdults.norm.train, plotAdults.norm.test, plotAdults.norm.train.k10$cluster, k=10)
+plotAdults.norm.test.k10
+plotAdults.norm.test.k10<-kmeans(plotAdults.norm.test, centers = 10)
+plotAdults.norm.test.k10$cluster
 
 #iclust:
 iclust(plotAdults, nclusters = 2)
