@@ -512,7 +512,7 @@ str(plotAdults)
 
 #omit any NA values and take a subset of 1000 records of the data
 plotAdults<- na.omit(plotAdults)
-plotAdults <- plotAdults[1:1000,]git
+plotAdults <- plotAdults[1:1000,]
 #plot data
 plot(plotAdults)
 
@@ -836,11 +836,10 @@ plotAdults.norm.test.k10$cluster
 iclust(plotAdults, nclusters = 2)
 iclust(plotAdults, nclusters = 3)
 iclust(plotAdults, nclusters = 4) 
-#Got a warning when nclusters=4
+
 iclust(plotAdults, nclusters = 5)
 iclust(plotAdults, nclusters = 6)
-#nclust=6 more warnings
-#THere are more issues below
+
 iclust(plotAdults, nclusters = 7)
 iclust(plotAdults, nclusters = 8)
 iclust(plotAdults, nclusters = 9)
