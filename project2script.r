@@ -512,7 +512,7 @@ str(plotAdults)
 
 #omit any NA values and take a subset of 1000 records of the data
 plotAdults<- na.omit(plotAdults)
-plotAdults <- plotAdults[1:1000,]git
+plotAdults <- plotAdults[1:1000,]
 #plot data
 plot(plotAdults)
 
@@ -587,7 +587,11 @@ factoextra::fviz_cluster(plotAdults.k10, plotAdults)
 #shows the optimal number of clusters
 factoextra::fviz_nbclust(plotAdults, FUNcluster=kmeans,print.summary=TRUE)
 
+
+# KNN
+
 #Prep for knn, 70-30 training ratio
+
 plotAdults.norm.nrows<-nrow(plotAdults.norm)
 plotAdults.norm.sample<-0.7
 plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
@@ -668,7 +672,83 @@ plotAdults.norm.test.k10
 plotAdults.norm.test.k10<-kmeans(plotAdults.norm.test, centers = 10)
 plotAdults.norm.test.k10$cluster
 
-#Prep for knn, 60-40 training ratio
+
+# lm/glm/pred:  70 - 30
+
+# 1st Attribute Combo: Age ~ Everything Else
+# lm - age over everything else 
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$age~plotAdults.norm.train$workclass+
+                                 plotAdults.norm.train$fnlwgt+plotAdults.norm.train$education.num+
+                                 plotAdults.norm.train$marital.status+plotAdults.norm.train$occupation+
+                                 plotAdults.norm.train$relationship+plotAdults.norm.train$race+
+                                 plotAdults.norm.train$sex+plotAdults.norm.train$capital.gain+
+                                 plotAdults.norm.train$capital.loss+plotAdults.norm.train$hours.per.week+
+                                 plotAdults.norm.train$native.country, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$age~plotAdults.norm.train$workclass+
+                                   plotAdults.norm.train$fnlwgt+plotAdults.norm.train$education.num+
+                                   plotAdults.norm.train$marital.status+plotAdults.norm.train$occupation+
+                                   plotAdults.norm.train$relationship+plotAdults.norm.train$race+
+                                   plotAdults.norm.train$sex+plotAdults.norm.train$capital.gain+
+                                   plotAdults.norm.train$capital.loss+plotAdults.norm.train$hours.per.week+
+                                   plotAdults.norm.train$native.country, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$native.country)
+
+
+# 2nd Attribute Combo: Education ~ workclass + race
+# lm -  
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$workclass+
+                                 plotAdults.norm.train$race, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$workclass+
+                                   plotAdults.norm.train$race, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$education.num)
+summary(plotAdults.norm.test$workclass)
+summary(plotAdults.norm.test$race)
+
+
+# 3rd Attribute Combo: Education ~ capitalgain + race
+# lm -  
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$capital.gain+
+                                 plotAdults.norm.train$race, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$capital.gain+
+                                   plotAdults.norm.train$race, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$education.num)
+summary(plotAdults.norm.test$capital.gain)
+summary(plotAdults.norm.test$race)
+
+
+
+# Prep for knn, 60-40 training ratio
+
 plotAdults.norm.nrows<-nrow(plotAdults.norm)
 plotAdults.norm.sample<-0.6
 plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
@@ -750,7 +830,84 @@ plotAdults.norm.test.k10
 plotAdults.norm.test.k10<-kmeans(plotAdults.norm.test, centers = 10)
 plotAdults.norm.test.k10$cluster
 
-#Prep for knn, 50-50 training ratio
+
+# lm/glm/pred:  60 - 40
+
+# 1st Attribute Combo: Age ~ Everything Else
+# lm - age over everything else 
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$age~plotAdults.norm.train$workclass+
+                                 plotAdults.norm.train$fnlwgt+plotAdults.norm.train$education.num+
+                                 plotAdults.norm.train$marital.status+plotAdults.norm.train$occupation+
+                                 plotAdults.norm.train$relationship+plotAdults.norm.train$race+
+                                 plotAdults.norm.train$sex+plotAdults.norm.train$capital.gain+
+                                 plotAdults.norm.train$capital.loss+plotAdults.norm.train$hours.per.week+
+                                 plotAdults.norm.train$native.country, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$age~plotAdults.norm.train$workclass+
+                                   plotAdults.norm.train$fnlwgt+plotAdults.norm.train$education.num+
+                                   plotAdults.norm.train$marital.status+plotAdults.norm.train$occupation+
+                                   plotAdults.norm.train$relationship+plotAdults.norm.train$race+
+                                   plotAdults.norm.train$sex+plotAdults.norm.train$capital.gain+
+                                   plotAdults.norm.train$capital.loss+plotAdults.norm.train$hours.per.week+
+                                   plotAdults.norm.train$native.country, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$native.country)
+
+
+# 2nd Attribute Combo: Education ~ workclass + race
+# lm -  
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$workclass+
+                                 plotAdults.norm.train$race, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$workclass+
+                                   plotAdults.norm.train$race, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$education.num)
+summary(plotAdults.norm.test$workclass)
+summary(plotAdults.norm.test$race)
+
+
+# 3rd Attribute Combo: Education ~ capitalgain + race
+# lm -  
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$capital.gain+
+                                 plotAdults.norm.train$race, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$capital.gain+
+                                   plotAdults.norm.train$race, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$education.num)
+summary(plotAdults.norm.test$capital.gain)
+summary(plotAdults.norm.test$race)
+
+
+
+
+# Prep for knn, 50-50 training ratio
+
 plotAdults.norm.nrows<-nrow(plotAdults.norm)
 plotAdults.norm.sample<-0.5
 plotAdults.norm.train.index<-sample(plotAdults.norm.nrows, plotAdults.norm.sample*plotAdults.norm.nrows)
@@ -832,7 +989,86 @@ plotAdults.norm.test.k10
 plotAdults.norm.test.k10<-kmeans(plotAdults.norm.test, centers = 10)
 plotAdults.norm.test.k10$cluster
 
-#iclust:
+# lm/glm/pred:  50 - 50
+
+# 1st Attribute Combo: Age ~ Everything Else
+# lm - age over everything else 
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$age~plotAdults.norm.train$workclass+
+                                 plotAdults.norm.train$fnlwgt+plotAdults.norm.train$education.num+
+                                 plotAdults.norm.train$marital.status+plotAdults.norm.train$occupation+
+                                 plotAdults.norm.train$relationship+plotAdults.norm.train$race+
+                                 plotAdults.norm.train$sex+plotAdults.norm.train$capital.gain+
+                                 plotAdults.norm.train$capital.loss+plotAdults.norm.train$hours.per.week+
+                                 plotAdults.norm.train$native.country, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm 
+
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$age~plotAdults.norm.train$workclass+
+                                   plotAdults.norm.train$fnlwgt+plotAdults.norm.train$education.num+
+                                   plotAdults.norm.train$marital.status+plotAdults.norm.train$occupation+
+                                   plotAdults.norm.train$relationship+plotAdults.norm.train$race+
+                                   plotAdults.norm.train$sex+plotAdults.norm.train$capital.gain+
+                                   plotAdults.norm.train$capital.loss+plotAdults.norm.train$hours.per.week+
+                                   plotAdults.norm.train$native.country, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$native.country)
+
+
+# 2nd Attribute Combo: Education ~ workclass + race
+# lm -  
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$workclass+
+                                 plotAdults.norm.train$race, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm 
+
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$workclass+
+                                   plotAdults.norm.train$race, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$education.num)
+summary(plotAdults.norm.test$workclass)
+summary(plotAdults.norm.test$race)
+
+
+# 3rd Attribute Combo: Education ~ capitalgain + race
+# lm -  
+plotAdults.norm.train.lm <- lm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$capital.gain+
+                                 plotAdults.norm.train$race, data = plotAdults.norm.train)
+summary.lm(plotAdults.norm.train.lm)
+plot(plotAdults.norm.train.lm)
+
+# glm 
+
+plotAdults.norm.train.glm <- glm(formula = plotAdults.norm.train$education.num~plotAdults.norm.train$capital.gain+
+                                   plotAdults.norm.train$race, family = gaussian, data = plotAdults.norm.train)
+summary.glm(plotAdults.norm.train.glm)
+plot(plotAdults.norm.train.glm)
+
+# pred
+plotAdults.norm.train.pred <- predict(plotAdults.norm.train.lm, newdata = plotAdults.norm.test)
+summary(plotAdults.norm.train.pred)
+summary(plotAdults.norm.test$education.num)
+summary(plotAdults.norm.test$capital.gain)
+summary(plotAdults.norm.test$race)
+
+
+
+
+# iclust:
+
 iclust(plotAdults, nclusters = 2)
 iclust(plotAdults, nclusters = 3)
 iclust(plotAdults, nclusters = 4) 
@@ -848,33 +1084,6 @@ iclust(plotAdults, nclusters = 10)
 
 
 #Question 4
-
-#50-50
-# training set
-patrain <- sample(1:nrow(plotAdults), 0.5 * nrow(plotAdults))
-plotAdults.train <- plotAdults[patrain,]
-plotAdults.train[1:20,]
-
-# test set
-plotAdults.test <- plotAdults[-patrain,]
-plotAdults.test[1:20,]
-
-# clean train and test
-plotAdults.train <- na.omit(plotAdults.train)
-plotAdults.test <- na.omit(plotAdults.test)
-
-# lm - occupation and race - fitted val over residuals plot
-plotAdults.train.lm.occ.rac <- lm(formula = plotAdults.train$occupation~plotAdults.train$race, data = plotAdults.train)
-summary.lm(plotAdults.train.lm.occ.rac)
-plot(plotAdults.train.lm.occ.rac$fitted.values, plotAdults.train.lm.occ.rac$residuals)
-
-# glm - occupation and race
-
-plotAdults.train.glm.occ.rac <- glm(formula = plotAdults.train$occupation~plotAdults.train$race, family = gaussian, data = plotAdults.train)
-summary.glm(plotAdults.train.glm.occ.rac)
-plot(plotAdults.train.glm.occ.rac$fitted.values, plotAdults.train.glm.occ.rac$residuals)
-
-
 
 
 
