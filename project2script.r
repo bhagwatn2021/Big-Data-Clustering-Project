@@ -683,3 +683,98 @@ iclust(plotAdults, nclusters = 8)
 iclust(plotAdults, nclusters = 9)
 iclust(plotAdults, nclusters = 10)
 
+
+#Question 4
+
+#50-50
+# training set
+patrain <- sample(1:nrow(plotAdults), 0.5 * nrow(plotAdults))
+plotAdults.train <- plotAdults[patrain,]
+plotAdults.train[1:20,]
+
+# test set
+plotAdults.test <- plotAdults[-patrain,]
+plotAdults.test[1:20,]
+
+# clean train and test
+plotAdults.train <- na.omit(plotAdults.train)
+plotAdults.test <- na.omit(plotAdults.test)
+
+# lm - occupation and race - fitted val over residuals plot
+plotAdults.train.lm.occ.rac <- lm(formula = plotAdults.train$occupation~plotAdults.train$race, data = plotAdults.train)
+summary.lm(plotAdults.train.lm.occ.rac)
+plot(plotAdults.train.lm.occ.rac$fitted.values, plotAdults.train.lm.occ.rac$residuals)
+
+# glm - occupation and race
+
+plotAdults.train.glm.occ.rac <- glm(formula = plotAdults.train$occupation~plotAdults.train$race, family = gaussian, data = plotAdults.train)
+summary.glm(plotAdults.train.glm.occ.rac)
+plot(plotAdults.train.glm.occ.rac$fitted.values, plotAdults.train.glm.occ.rac$residuals)
+
+
+
+
+
+
+
+train_index <- sample(1:nrow(adults), 0.5 * nrow(adults))
+test_index <- setdiff(1:nrow(adults), train_index)
+
+X_train <- adults[train_index, -15]
+y_train <- adults[train_index, "income"]
+
+X_test <- adults[test_index, -15]
+y_test <- adults[test_index, "income"]
+
+modXtrain <- lm(X_train)
+modXtest <- lm(X_test)
+
+#prediction 50-50 train
+predict(modXtrain)
+plot(modXtrain)
+
+#prediction 50-50 test
+predict(modXtest)
+plot(modXtest)
+
+#60-40
+train_index2 <- sample(1:nrow(adults), 0.6 * nrow(adults))
+test_index2 <- setdiff(1:nrow(adults), train_index2)
+
+X_train2 <- adults[train_index2, -15]
+y_train2 <- adults[train_index2, "income"]
+
+X_test2 <- adults[test_index2, -15]
+y_test2 <- adults[test_index2, "income"]
+
+modXtrain2 <- lm(X_train2)
+modXtest2 <- lm(X_test2)
+
+#prediction 60-40 train
+predict(modXtrain2)
+plot(modXtrain2)
+
+#prediction 60-40 test
+predict(modXtest2)
+plot(modXtest2)
+
+#70-30
+train_index3 <- sample(1:nrow(adults), 0.7 * nrow(adults))
+test_index3 <- setdiff(1:nrow(adults), train_index3)
+
+X_train3 <- adults[train_index3, -15]
+y_train3 <- adults[train_index3, "income"]
+
+X_test3 <- adults[test_index3, -15]
+y_test3 <- adults[test_index3, "income"]
+
+modXtrain3 <- lm(X_train3)
+modXtest3 <- lm(X_test3)
+
+#prediction 70-30 train
+predict(modXtrain3)
+plot(modXtrain3)
+
+#prediction 70-30 test
+predict(modXtest3)
+plot(modXtest3)
