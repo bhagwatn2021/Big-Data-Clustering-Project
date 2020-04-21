@@ -31,7 +31,7 @@ adults
 plotAdults <- adults
 
 #investigate statistics of the data
-
+describe(plotAdults)
 #Translating alphanumeric values to numeric values for age, fnlwgt, education-num, 
 #capital-gain, capital loss, hours-per-week to ensure that we are working with 
 #integers when pairwise plotting
